@@ -1,0 +1,284 @@
+.wrapper {
+    width: 1200px;
+    margin: 0 auto;
+    }
+    
+    header {
+    background-image: url(../img/top.png);
+    display: flex;
+    justify-content: space-between;
+    }
+    
+    .sidebar-left {
+    float: left;
+    font: 16pt arial;
+    width: 220px;
+    padding: 0px;
+    margin-left: 40px;
+    }
+    
+    .main {
+    width: 900px;
+    background-image: url(../img/fon.jpg);
+    background-repeat: repeat-y;
+    margin-left: 260px;
+    }
+    
+    .online{
+        background: deeppink;
+        padding: 5px;
+    }
+    
+    .nick{
+        display: inline-block;
+        font: 16pt tahoma;
+        color: firebrick;
+        padding: 3px;
+        margin-left: 10px;
+    
+    }
+    
+    .url {
+        padding-top: 13px;
+        padding-bottom: 13px;
+    }
+    
+    /*
+    Верхние подменю
+    */
+    .submenu {
+        position: absolute;
+        background-color: #30b6bb;
+        cursor: pointer;
+        left: 80px;
+        border: red 2px solid;
+        visibility: hidden;
+        opacity: 0;
+        z-index: 1;
+    }
+    .submenu .menu-item:not(:last-child) {
+        border-bottom: rgba(30, 20, 165, 0.87) 1px solid;
+    }
+    
+    .submenu .menu-item {
+        display: block;
+        text-align: center;
+        padding-top: 13px;
+        padding-bottom: 13px;
+    }
+    
+    .menu-item:hover>.submenu {
+        visibility: visible;
+        opacity: 1;
+        transition-duration: 1s;
+    }
+    
+    .submenu .menu-item:hover .submenu {
+        left: 203px;
+        top: 5px;
+    }
+    
+    .submenu .menu-item:hover {
+        background: red;
+    }
+
+    /*
+    Левое подменю
+    */
+    .submenuleft {
+        position: absolute;
+        background-color: #6b1f2f;
+        cursor: pointer;
+        left: 115px;
+        top: 0;
+        border: red 2px solid;
+        z-index: 1;
+        visibility: hidden;
+        opacity: 0;
+        color: tomato;
+    }
+    
+    .menu-item:hover > .submenuleft {
+        visibility: visible;
+        opacity: 1;
+        transition-duration: 1s;
+    }
+    
+    .submenuleft .menu-item {
+        display: block;
+    }
+
+    /*
+    Дальше
+    */
+    
+    .menu-item {
+        position: relative;
+        white-space: nowrap;
+    }
+    
+    
+    footer {
+    background-color: deeppink;
+    padding: 1px;
+    text-align: center;
+    margin-bottom: 20px;
+    font: 16pt tahoma;
+    }
+    
+    .title{
+    height: 60px;
+    margin-top: 18px;
+    display: inline-block;
+    }
+    
+    .menu-top{
+    font: 16pt arial;
+    display: flex;
+    margin-right: 30px;
+    justify-content: space-evenly;
+    }
+    
+    
+    
+    .menu-top a {
+        display: inline-block;
+        color: white;
+        height: 50px;
+        padding: 20px 35px 0px;
+    }
+    
+    .menu-top .menu-item:hover{
+        background: red;
+        cursor: pointer;
+    }
+    
+    a{
+        text-decoration: none;
+        color: rgb(114, 100, 100);
+    }
+    
+    ul{
+        margin: 0;
+        padding: 0;
+    }
+    
+    li{
+        list-style: none;
+    }
+    
+    .menu-left li {
+    display: inline-block;
+    }
+    
+    .menu-left{
+        display: flex;
+        flex-direction: column;
+        transition-duration: 3s;
+    }
+    
+    .menu-left a {
+        display: inline-block;
+        color: salmon;
+        padding: 8px;
+        width: 204px;
+    }
+    
+    .lenta-left{
+        float: left;
+    }
+    
+    .lenta-right{
+        margin-left: 300px;
+    }
+    
+    .avatar{
+        width: 208px;
+        margin: 10px;
+    }
+    
+    .edit-page{
+        margin-left: 20px;
+        color:tomato
+    }
+    
+    p {
+        font: 14pt arial;
+    }
+    
+    .top-menu{
+        display: inline-block;
+        background: deeppink;
+        width: 100%;
+    }
+    
+    .gallery img {
+        float: left;
+        margin: 3px;
+    }
+    
+    .gallery{
+        display: flex;
+    }
+    
+    .info-left {
+        width: 20px;
+    }
+    
+    .about{
+        display: flex;
+    }
+    
+    .info-right {
+        color: tomato;
+        margin-left: 120px;
+        width: 65px;
+    }
+    
+    body{
+        padding: 0px;
+        margin: 0px;
+    }
+    
+    span.title::first-letter{
+        background: white;
+        color: tomato;
+        padding: 2px 4px;
+        margin: 2px;
+        border-radius: 6px;
+    }
+    
+    video {
+        width: 100%;
+    }
+    
+    audio {
+        width: 100%;
+    }
+    
+    img:hover{
+        transition-duration: 1s;
+        cursor: pointer
+    }
+    
+    video:hover{
+        cursor: pointer;
+    }
+    
+    img {
+        transition-duration: 3s;
+    }
+
+    .widthimg {
+        width: 288px;
+        height: 280px;
+    }
+
+    .redaction {
+        width: 200px
+    }
+
+    .redaction2 {
+        width: 80%;
+        text-align: center;
+    }

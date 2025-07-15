@@ -1,0 +1,37 @@
+header{
+    color: black;
+    background-color: rgb(17, 167, 167);
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.container{
+    display: flex;
+    justify-content: end;
+}
+
+.button{
+    margin: 54px auto;
+    width: 293px;
+    height: 70px;
+    background-color: #eb7d4b;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    font-size: 18px;
+    line-height: 26px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.url2 {
+    color: green;
+    text-transform: uppercase;
+}
+
+a {
+    text-decoration: none;
+}

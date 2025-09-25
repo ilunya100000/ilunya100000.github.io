@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Реестр паспортов</title>
+  <style>
+    :root{--bg:#f6f7fb;--card:#fff;--accent:#0055dd;--muted:#6b7280}
+    *{box-sizing:border-box;font-family:Inter, system-ui, -apple-system,Segoe UI, Roboto, "Helvetica Neue", Arial}
+    body{margin:0;background:var(--bg);color:#0f172a;padding:24px}
+    header{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:18px}
+    h1{font-size:20px;margin:0}
+    .controls{display:flex;gap:8px;align-items:center}
+    button{background:var(--accent);color:#fff;border:0;padding:8px 12px;border-radius:8px;cursor:pointer}
+    button.ghost{background:transparent;color:var(--accent);border:1px solid rgba(0,85,221,.12)}
+    .search{padding:8px;border-radius:8px;border:1px solid #e5e7eb;background:#fff}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+    .card{background:var(--card);padding:12px;border-radius:12px;box-shadow:0 6px 18px rgba(15,23,42,0.06);position:relative}
+    .photo{width:100%;height:160px;object-fit:cover;border-radius:8px;background:#eef2ff;display:block}
+    .meta{margin-top:8px}
+    .meta b{display:block}
+    .muted{color:var(--muted);font-size:13px}
+    .footer{margin-top:18px;color:var(--muted);font-size:13px}
+    .deleteBtn{position:absolute;top:8px;right:8px;background:red;color:#fff;border:0;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px;display:none}
+    .card.admin .deleteBtn{display:block}
+
+    /* modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.45);display:none;align-items:center;justify-content:center;padding:20px}
+    .modal{width:100%;max-width:680px;background:var(--card);border-radius:12px;padding:18px}
+    form .row{display:flex;gap:12px}
+    label{display:block;font-size:13px;margin-bottom:6px}
+    input[type=text],textarea,input[type=file]{width:100%;padding:8px;border-radius:8px;border:1px solid #e5e7eb}
+    textarea{min-height:84px}
+    .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+
+    /* small */
+    .top-right{display:flex;gap:8px;align-items:center}
+    .status{font-size:13px;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Реестр паспортов</h1>
+      <div class="muted">Список всех добавленных паспортов</div>
+    </div>
+    <div class="controls">
+      <input id="q" class="search" placeholder="Поиск по ФИО или номеру" />
+      <div class="top-right">
+        <div id="loginStatus" class="status">Не в системе</div>
+        <button id="btnAdd">Добавить паспорт</button>
+        <button id="btnLogin" class="ghost">Войти</button>
+        <button id="btnLogout" class="ghost" style="display:none">Выйти</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="list" class="grid"></div>
+    <div class="footer">Примечание: это демонстрация — данные хранятся в браузере (localStorage). На хостинге будут сохраняться в браузере пользователя.</div>
+  </main>
+
+  <!-- Modal: Add / Edit -->
+  <div id="modal" class="modal-backdrop" role="dialog" aria-hidden>
+    <div class="modal">
+      <h3 id="modalTitle">Добавить паспорт</h3>
+      <form id="form">
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <div style="flex:1;min-width:220px">
+            <label>Фото (jpg, png)</label>
+            <input id="photo" type="file" accept="image/*" />
+            <div style="margin-top:8px"><img id="preview" class="photo" alt="preview"/></div>
+          </div>
+          <div style="flex:1;min-width:220px">
+            <label>Номер паспорта (серия + номер, например A1234567)</label>
+            <input id="passportNumber" type="text" required />
+
+            <label style="margin-top:8px">ФИО</label>
+            <input id="fullname" type="text" required />
+
+            <label style="margin-top:8px">Краткая информация</label>
+            <textarea id="info"></textarea>
+          </div>
+        </div>
+        <div class="actions">
+          <button type="button" id="btnCancel" class="ghost">Отмена</button>
+          <button type="submit">Сохранить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Login -->
+  <div id="modalLogin" class="modal-backdrop" role="dialog" aria-hidden>
+    <div class="modal">
+      <h3 id="loginTitle">Вход для добавления</h3>
+      <form id="formLogin">
+        <label>Пароль администратора</label>
+        <input id="adminPass" type="password" required />
+        <div class="actions">
+          <button type="button" id="btnLoginCancel" class="ghost">Отмена</button>
+          <button type="submit">Войти</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const LS_PASSPORTS = 'registry_passports_v1'
+
+    // DOM
+    const listEl = document.getElementById('list')
+    const btnAdd = document.getElementById('btnAdd')
+    const btnLogin = document.getElementById('btnLogin')
+    const btnLogout = document.getElementById('btnLogout')
+    const loginStatus = document.getElementById('loginStatus')
+    const q = document.getElementById('q')
+
+    const modal = document.getElementById('modal')
+    const form = document.getElementById('form')
+    const preview = document.getElementById('preview')
+    const photoInput = document.getElementById('photo')
+    const passportNumber = document.getElementById('passportNumber')
+    const fullname = document.getElementById('fullname')
+    const info = document.getElementById('info')
+    const btnCancel = document.getElementById('btnCancel')
+
+    const modalLogin = document.getElementById('modalLogin')
+    const formLogin = document.getElementById('formLogin')
+    const adminPass = document.getElementById('adminPass')
+    const btnLoginCancel = document.getElementById('btnLoginCancel')
+
+    let passports = []
+    let loggedIn = false
+    const ADMIN_PASSWORD = "MakanHuesos"
+
+    function loadPassports(){
+      const raw = localStorage.getItem(LS_PASSPORTS)
+      passports = raw ? JSON.parse(raw) : []
+    }
+    function savePassports(){
+      localStorage.setItem(LS_PASSPORTS, JSON.stringify(passports))
+    }
+
+    function render(){
+      listEl.innerHTML = ''
+      const qv = q.value.trim().toLowerCase()
+      const filtered = passports.filter(p=>{
+        if(!qv) return true
+        return (p.fullname||'').toLowerCase().includes(qv) || (p.passportNumber||'').toLowerCase().includes(qv)
+      })
+      if(filtered.length===0){
+        listEl.innerHTML = '<div class="muted">Нет записей</div>'
+        return
+      }
+      for(const p of filtered){
+        const card = document.createElement('div')
+        card.className = 'card' + (loggedIn ? ' admin' : '')
+        card.innerHTML = `
+          <button class="deleteBtn">Удалить</button>
+          <img class="photo" src="${p.photo||''}" alt="photo" />
+          <div class="meta">
+            <b>${p.fullname||'—'}</b>
+            <div class="muted">Паспорт: ${p.passportNumber||'—'}</div>
+            <div style="margin-top:8px">${(p.info||'').replace(/\n/g,'<br/>')}</div>
+            <div class="muted" style="margin-top:8px">Добавлен: ${new Date(p.addedAt).toLocaleString()}</div>
+          </div>
+        `
+        if(loggedIn){
+          card.querySelector('.deleteBtn').addEventListener('click', ()=>{
+            if(confirm('Удалить этот паспорт?')){
+              passports = passports.filter(x=>x.id!==p.id)
+              savePassports()
+              render()
+            }
+          })
+        }
+        listEl.appendChild(card)
+      }
+    }
+
+    function openModal(){ modal.style.display = 'flex'; modal.setAttribute('aria-hidden','false') }
+    function closeModal(){ modal.style.display = 'none'; modal.setAttribute('aria-hidden','true'); form.reset(); preview.src=''; }
+    function openLoginModal(){ modalLogin.style.display = 'flex'; modalLogin.setAttribute('aria-hidden','false') }
+    function closeLoginModal(){ modalLogin.style.display='none'; modalLogin.setAttribute('aria-hidden','true'); formLogin.reset(); }
+
+    btnAdd.addEventListener('click', ()=>{
+      if(!loggedIn){ openLoginModal(); return }
+      openModal()
+    })
+
+    btnLogin.addEventListener('click', ()=>{ openLoginModal() })
+    btnLogout.addEventListener('click', ()=>{
+      if(confirm('Выйти из админ-режима?')){
+        loggedIn=false
+        loginStatus.textContent='Не в системе'
+        btnLogout.style.display='none'
+        btnLogin.style.display='inline-block'
+        render()
+      }
+    })
+
+    btnCancel.addEventListener('click', closeModal)
+    btnLoginCancel.addEventListener('click', closeLoginModal)
+
+    form.addEventListener('submit', (e)=>{
+      e.preventDefault()
+      const obj = {
+        id: Date.now().toString(36),
+        passportNumber: passportNumber.value.trim(),
+        fullname: fullname.value.trim(),
+        info: info.value.trim(),
+        photo: preview.src || '',
+        addedAt: Date.now()
+      }
+      passports.unshift(obj)
+      savePassports()
+      closeModal()
+      render()
+      alert('Паспорт сохранён')
+    })
+
+    photoInput.addEventListener('change', ()=>{
+      const f = photoInput.files && photoInput.files[0]
+      if(!f) { preview.src = ''; return }
+      const reader = new FileReader()
+      reader.onload = ()=> preview.src = reader.result
+      reader.readAsDataURL(f)
+    })
+
+    formLogin.addEventListener('submit', (e)=>{
+      e.preventDefault()
+      const pass = adminPass.value
+      if(pass===ADMIN_PASSWORD){
+        loggedIn = true
+        loginStatus.textContent = 'В системе (админ)'
+        btnLogout.style.display='inline-block'
+        btnLogin.style.display='none'
+        closeLoginModal()
+        render()
+        alert('Вход успешен')
+      } else {
+        alert('Неверный пароль')
+      }
+    })
+
+    q.addEventListener('input', render)
+
+    loadPassports()
+    render()
+
+    document.querySelectorAll('.modal-backdrop').forEach(back=>{
+      back.addEventListener('click', e=>{ if(e.target===back) { back.style.display='none'; back.setAttribute('aria-hidden','true') } })
+    })
+  </script>
+</body>
+</html>

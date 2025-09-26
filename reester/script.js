@@ -1,4 +1,4 @@
-const API_URL = "https://YOUR_RAILWAY_APP.up.railway.app/api";
+const API_URL = "passports-production.up.railway.app/api";
 let isAdmin = false;
 
 async function fetchPassports() {

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Passport Registry</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Passport Registry</h1>
+  
+  <div id="auth">
+    <button onclick="login()">Admin Login</button>
+    <button onclick="logout()" id="logoutBtn" style="display:none;">Logout</button>
+  </div>
+
+  <div id="formContainer" style="display:none;">
+    <h2>Add Passport</h2>
+    <form id="passportForm">
+      <input type="text" name="series" placeholder="Series (A1234)" required><br>
+      <input type="text" name="fullname" placeholder="Full Name" required><br>
+      <textarea name="info" placeholder="Short Info"></textarea><br>
+      <input type="file" name="photo" accept="image/*" required><br>
+      <button type="submit">Add Passport</button>
+    </form>
+  </div>
+
+  <h2>All Passports</h2>
+  <div id="passports"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
